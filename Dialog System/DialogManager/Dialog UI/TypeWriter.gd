@@ -22,7 +22,7 @@ func _ready():
 	sbb.caller = self
 	install_effect(sbb)
 	
-func _process(delta):
+func _process(_delta):
 	if _speed_mult != _last_speed:
 		_last_speed = _speed_mult
 		_tween.playback_speed = _speed_mult * speed
@@ -78,19 +78,13 @@ class speedbb extends RichTextEffect:
 	var caller: Node = null
 	
 	func _process_custom_fx(char_fx) -> bool:
-		
 		if Engine.editor_hint:
 			return true
 		# main loop
 		if char_fx.visible and caller != null and char_fx.env.has(""):
-			
 			# first char of speed sequence
-			if char_fx.relative_index == 0 and (
-					(caller.speed >= 0 and caller.percent_visible < 1.0)
-					 or caller.speed < 0):
-				
+			if char_fx.relative_index == 0 and ((caller.speed >= 0 and caller.percent_visible < 1.0) or caller.speed < 0):
 				caller._block_speed(char_fx.env[""])
-				
 			# last char of speed sequence
 			if char_fx.env.get("_ct", -1) == char_fx.relative_index:
 				caller._block_speed(1)
