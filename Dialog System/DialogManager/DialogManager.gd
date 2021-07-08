@@ -10,9 +10,15 @@ var current_block : block
 var current_choices : Array
 var UI 
 var is_ON : bool = false
-var cbi 
+var cbi : Command
+var debug
 
 var _skipped : bool = false
+
+#Add and Emit signals for one the system starts, end, and steps through
+#Add End Dialog Command
+#Add Tween Dialogs
+#Add Voice acting Support to Say Command
 
 #This is for Debug perpesos but a button to skip the dialog is needed
 func _input(event):
@@ -20,7 +26,7 @@ func _input(event):
 		advance()
 
 func execute_dialog() -> void:
-	
+	is_ON = true
 	if current_block == null:
 		#print("Error: No block has been added")
 		end_dialog()
@@ -47,28 +53,32 @@ func execute_dialog() -> void:
 		return
 
 	match cbi.type:
-		#to add: BBCode Support, Better Portraits support
+		#to add: Better Portraits support
 		"say": #ToDebug
 			UI.hide_say()
 			UI.add_text(cbi.say, cbi.name, cbi.append_text)
 			UI.add_portrait(cbi.portrait, cbi.por_pos)
 			UI.show_say()
+			UI.show_next_button()
 			indexer = indexer+1
-			
+
 		"cond_say":
 			if calc_var(cbi.required_node, cbi.required_var, cbi.check_val, cbi.condition_type) == true:
 				UI.hide_say()
 				UI.add_text(cbi.say, cbi.name, cbi.append_text)
 				UI.add_portrait(cbi.portrait, cbi.por_pos)
 				UI.show_say()
+				UI.show_next_button()
 				indexer = indexer+1
 				return
 			indexer = indexer + 1
 			advance()	
 
 		"fork":
-			UI.hide_say()
+			#UI.hide_say()
 			UI.hide_choice()
+			UI.hide_next_button()
+			#UI.hide_portriats()
 			current_choices.clear()
 			for i in cbi.choices.size():
 				if cbi.type == "cond_choice":
@@ -115,7 +125,7 @@ func execute_dialog() -> void:
 				cbi.var_path = NodePath(req_node_string)
 			get_node(cbi.var_path).set(cbi.var_name, cbi.var_value)
 			indexer = indexer+1
-			advance()
+			advance() 
 
 		"change_ui": #To Debug
 			if cbi.change_to_default == true:
@@ -130,7 +140,7 @@ func execute_dialog() -> void:
 			add_child(UI)
 			indexer = indexer+1
 			advance()
-			
+
 		"sound_command": 
 			if cbi.stream != null : 
 				audio_player.stop()
@@ -212,7 +222,8 @@ func end_dialog() -> void:
 	is_ON = false
 
 func advance () -> void :
-	if !is_ON : return
+	if !is_ON : 
+		return
 	
 	if UI.is_tweening:
 		UI.say_text.skip_tween()
@@ -226,3 +237,4 @@ func advance () -> void :
 		
 	if not UI.is_tweening and not audio_player.playing:
 		execute_dialog()
+

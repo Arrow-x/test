@@ -38,9 +38,6 @@ func _ready():
 func hide_say() -> void:
 	if say_pannel.visible:
 		say_pannel.visible = false
-		var port : Array = [right_portrait, center_portrait, left_portrait]
-		for i in port:
-			i.visible  = false
 
 func show_say() -> void:
 	if !say_pannel.visible:
@@ -58,18 +55,36 @@ func show_choice() -> void:
 		choice_container.visible = true
 
 func add_portrait(portrait: StreamTexture, por_pos) -> void: 
+	var port : Array = [right_portrait, center_portrait, left_portrait]
+	for i in port:
+		i.self_modulate = "3e3e3e"
+
 	match por_pos:
 		"Right":
+			right_portrait.self_modulate = "ffffff"
 			right_portrait.texture = portrait
 			right_portrait.visible = true
 		"Left":
+			left_portrait.self_modulate = "ffffff"
 			left_portrait.texture = portrait
 			left_portrait.visible = true
 		"Center":
+			center_portrait.self_modulate = "ffffff"
 			center_portrait.texture = portrait
 			center_portrait.visible = true
+			
+func hide_portriats ()-> void :
+	var port : Array = [right_portrait, center_portrait, left_portrait]
+	for i in port:
+		i.visible  = false
+
+func hide_next_button() -> void:
+	next_button.visible = false
+
+func show_next_button()-> void:
+	next_button.visible = true
 	
-func add_text(got_text, got_name, append = false) -> void: 
+func add_text(got_text, got_name = "", append = false) -> void: 
 	say_text.send_message(got_text, append)
 	say_name.text = got_name
 
@@ -80,10 +95,7 @@ func add_choice_button(block, id, index) -> void:
 	s.connect("pressed",DialogManager,"_on_make_choice",[id,index])
 
 func _on_SayText_message_done():
-	print("message done")
 	is_tweening = false
 
-
 func _on_SayText_message_start():
-	print("message start")
 	is_tweening = true
